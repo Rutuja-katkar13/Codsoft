@@ -1,0 +1,104 @@
+
+document.addEventListener('DOMContentLoaded', () => {
+  const display = document.getElementById('display');
+  const buttons = document.querySelectorAll('.button');
+  let currentInput = '0';
+  let previousInput = '';
+  let operator = '';
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const action = button.dataset.action;
+      const buttonContent = button.textContent;
+
+      if (!action) {
+        handleNumber(buttonContent);
+      } else {
+        switch (action) {
+          case 'clear':
+            clearCalculator();
+            break;
+          case 'delete':
+            deleteLastCharacter();
+            break;
+          case 'operator':
+            handleOperator(buttonContent);
+            break;
+          case 'equals':
+            calculate();
+            break;
+          case 'decimal':
+            addDecimal();
+            break;
+        }
+      }
+      updateDisplay();
+    });
+  });
+
+  function handleNumber(number) {
+    if (currentInput === '0' && number === '0') return; // Prevent multiple leading zeros
+    if (currentInput === '0' || operator !== '') {
+      currentInput = number;
+      operator = '';
+    } else {
+      currentInput += number;
+    }
+  }
+
+  function handleOperator(op) {
+    if (currentInput) {
+      if (previousInput && operator) {
+        calculate();
+      } else {
+        previousInput = currentInput;
+        currentInput = '';
+      }
+      operator = op;
+    }
+  }
+
+  function calculate() {
+    if (previousInput && currentInput && operator) {
+      const prev = parseFloat(previousInput);
+      const curr = parseFloat(currentInput);
+
+      switch (operator) {
+        case '+':
+          currentInput = (prev + curr).toString();
+          break;
+        case '-':
+          currentInput = (prev - curr).toString();
+          break;
+        case '*':
+          currentInput = (prev * curr).toString();
+          break;
+        case '/':
+          currentInput = (prev / curr).toString();
+          break;
+      }
+      previousInput = '';
+      operator = '';
+    }
+  }
+
+  function clearCalculator() {
+    currentInput = '0';
+    previousInput = '';
+    operator = '';
+  }
+
+  function deleteLastCharacter() {
+    currentInput = currentInput.slice(0, -1) || '0';
+  }
+
+  function addDecimal() {
+    if (!currentInput.includes('.')) {
+      currentInput += '.';
+    }
+  }
+
+  function updateDisplay() {
+    display.textContent = currentInput || '0';
+  }
+});
